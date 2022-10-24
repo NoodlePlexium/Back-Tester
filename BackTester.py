@@ -52,12 +52,12 @@ def BackTest():
     commission = commission/100
 
     # Enter Trade
-    def Enter(side, qty, entryPrice, tp, sl, commission):
+    def Enter(side, qty, entryPrice, tp, sl):
         global tradeCount
         global equity
 
         tradeCount+=1
-        equity -= commission  
+        equity -= (commission)*math.floor(equity*entryPrice)/entryPrice  
         openTrades.append({'direction' : side, 'tradeID' : tradeCount, 'quantity' : qty, 'entry price' : entryPrice, 'tp' : tp, 'sl' : sl})
         print(f"{side} #{tradeCount} | ${entryPrice} per {symbol} | Qty ${qty}")
 
@@ -120,12 +120,10 @@ def BackTest():
         if longCondition:
 
             # Calculate TP & SL
-            tradeCount+=1
             sl = close[i] * 0.9
             tp = close[i] * 1.1
 
-            # Entry Commision
-            _commision = (commission)*math.floor(equity*close[i])/close[i]  
+            # Trade Size
             qty = math.floor((equity*close[i]))
 
             Enter('long', qty, close[i], tp, sl, _commision)
@@ -135,12 +133,10 @@ def BackTest():
         if shortCondition:
 
             # Calculate TP & SL
-            tradeCount+=1
             sl = close[i] * 1.1
             tp = close[i] * 0.9
-
-            # Entry Commision
-            _commision = (commission)*math.floor(equity*close[i])/close[i]  
+            
+            # Trade Size
             qty = math.floor((equity*close[i]))
 
             Enter('short', qty, close[i], tp, sl, _commision) 

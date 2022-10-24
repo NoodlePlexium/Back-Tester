@@ -3,6 +3,7 @@ A Backtesting Script I written in Python, used for testing algo trading strategi
 
 - Takes a csv dataframe containing OHLC values as an input. 
 - Outputs strategy results and plots an equity curve.
+- Supports Commission
 
 # Outputs
 - Trade count
@@ -11,8 +12,6 @@ A Backtesting Script I written in Python, used for testing algo trading strategi
 - Sharpe Ratio
 - Drawndown
 - Equity Curve
-
-- Supports Commission
 
 # In Future Updates
 - I may migrate the system to an Object Oriented approach

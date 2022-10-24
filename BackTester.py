@@ -32,40 +32,26 @@ def BackTest():
     profit = 0
     equityCurve = [equityStart]
     openTrades=[]
-    riskFreeReturn = 25
+    riskFreeReturn = 22
+    
+    # Strategy Settings
+    riskReward = 1
+    commission = 0.06
 
+    # Indicator Settings
+
+    # OHLC Arrays
     open = data['open']
     high = data['high']
     low = data['low']
     close = data['close']
     
-    # Strategy Settings
-    riskReward = 2
-    stopMultiplier = 0.7
-    commission = 0.06
+    # Pandas TA Indicators
 
-    stoc_length = 20
-    k_length = 5
-    d_length = 2
-
-    band = 8
-
-    # Indicators
-    ma = data.ta.ema(length=25)
-    ma_slow = data.ta.ema(length=100)
-
-    rsi = data.ta.rsi(length=12)
-    stoc = ta.stoch(rsi, rsi, rsi, smooth_k=k_length, k=stoc_length, d=d_length).reset_index()
-    suffix = str(stoc_length)+'_'+str(d_length)+'_'+str(k_length)
-
-    k = stoc['STOCHk_'+suffix]
-    d = stoc['STOCHd_'+suffix]
-
-    atr = data.ta.atr(lenth=20)
-
+    # Commision
     commission = commission/100
 
-    # Trade Functions
+    # Enter Trade
     def Enter(side, qty, entryPrice, tp, sl, commission):
         global tradeCount
         global equity
@@ -75,6 +61,7 @@ def BackTest():
         openTrades.append({'direction' : side, 'tradeID' : tradeCount, 'quantity' : qty, 'entry price' : entryPrice, 'tp' : tp, 'sl' : sl})
         print(f"{side} #{tradeCount} | ${entryPrice} per {symbol} | Qty ${qty}")
 
+    # Exit Trade
     def Exit(trade):
         global profits
         global equity
@@ -100,7 +87,7 @@ def BackTest():
         equity += profit
         equityCurve.append(equity) 
               
-    # Interate Through Each Candle
+    # Interate throught the dataframe
     for i in range(1,len(k)):
 
         # Exit trades
@@ -125,19 +112,17 @@ def BackTest():
                     
             if exit == True: openTrades.remove(trade)    
 
-        stoc_long = k[i-1]<d[i-1] and k[i]>d[i] and k[i-1]<band and d[i-1]<band
-        stoc_short = k[i-1]>d[i-1] and k[i]<d[i] and k[i-1]>100-band and d[i-1]>100-band 
+        # Custon trade entry conditions ---------------------------------------------------------- 
+        longCondition = False
+        shortCondition = False
 
-        longCondition = stoc_long and close[i]>ma[i] and close[i]>ma_slow[i] and ma[i]>ma_slow[i] and len(openTrades) == 0
-        shortCondition = stoc_short and close[i]<ma[i] and close[i]<ma_slow[i] and ma[i]<ma_slow[i] and len(openTrades) == 0
-
-        # Enter a buy trade
+        # Enter long
         if longCondition:
+
+            # Calculate TP & SL
             tradeCount+=1
-            stopSize = atr[i] * stopMultiplier
-            sl = low[i] - stopSize
-            longStopDist = close[i] - sl
-            tp = close[i] + longStopDist * riskReward
+            sl = close[i] * 0.9
+            tp = close[i] * 1.1
 
             # Entry Commision
             _commision = (commission)*math.floor(equity*close[i])/close[i]  
@@ -146,23 +131,19 @@ def BackTest():
             Enter('long', qty, close[i], tp, sl, _commision)
 
 
-        # Enter a sell trade
+        # Enter short
         if shortCondition:
+
+            # Calculate TP & SL
             tradeCount+=1
-            stopSize = atr[i] * stopMultiplier
-            sl = high[i] + stopSize
-            shortStopDist = sl - close[i]
-            tp = close[i] - shortStopDist * riskReward
+            sl = close[i] * 1.1
+            tp = close[i] * 0.9
 
             # Entry Commision
             _commision = (commission)*math.floor(equity*close[i])/close[i]  
             qty = math.floor((equity*close[i]))
 
-            Enter('short', qty, close[i], tp, sl, _commision)
-
-        if equity < 0.85*equityStart:
-            print("\nAccount Dropped below 85% of principle")
-            break     
+            Enter('short', qty, close[i], tp, sl, _commision) 
 
     # Calculate Results
     profit = equity - equityStart
@@ -192,6 +173,7 @@ def BackTest():
     print(f"Sharpe Ratio: {sharpeRatio}")
     print(f"Max Drawdown: {maxDrawdown*100}%")  
 
+    # Plot equity
     plt.plot(equityCurve)
     plt.show()
 

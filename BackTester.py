@@ -161,13 +161,13 @@ def BackTest():
         drawdownCurve.append(drawdown)  
 
     # Report Backtest Results
-    print(f"\nNumber of Trades: {tradeCount}")
+    print(f"Equity: {equity}")
     print(f"Profit: {profit}")
-    print(f"Equity: {equity}\n")
+    print(f"\nNumber of Trades: {tradeCount}")
     print(f"Profitable Trades: {winCount}")
     print(f"Percentage Profitable: {round((winCount/tradeCount)*100,2)}%\n")
     print(f"Sharpe Ratio: {sharpeRatio}")
-    print(f"Max Drawdown: {maxDrawdown*100}%")  
+    print(f"Max Drawdown: {maxDrawdown*100}%")    
 
     # Plot equity
     plt.plot(equityCurve)

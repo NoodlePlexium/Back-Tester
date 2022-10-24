@@ -12,7 +12,7 @@ A Backtesting Script I written in Python, used for testing algo trading strategi
 - Drawndown
 - Equity Curve
 
-# Supports Commission
+- Supports Commission
 
 # In Future Updates
 - I may migrate the system to an Object Oriented approach
